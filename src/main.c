@@ -1,28 +1,29 @@
 #include <stdio.h>
 #include <string.h>
-#include "../libs/misc/Miscelaneous.h"
+#include <stdlib.h>
+#include "./libs/misc/Miscelaneous.h"
+#include "./libs/ImageMap/ImageMap.h"
 
-void redirectFunction(int numberOfArguments, char **functionality) {
-    if (numberOfArguments < 3) {
-        printf("Error, No files passed! Usage: ./imm -option file\n");
-    } else if (strcmp(*(functionality + 1), "-open") == 0) {
-        printf("Open an image %s\n", *(functionality + 2));
-    } else if (strcmp(*(functionality + 1), "-convert") == 0) {
-        printf("Convert an image %s\n", *(functionality + 2));
-    } else if (strcmp(*(functionality + 1), "-segment") == 0) {
-        printf("Segment an image %s\n", *(functionality + 2));
-    } else if (strcmp(*(functionality + 1), "-cc") == 0) {
-        printf("Detect conected components in an image %s\n", *(functionality + 2));
-    } else if (strcmp(*(functionality + 1), "-lab") == 0) {
-        printf("Show the path to be traveled %s\n", *(functionality + 2));
-    } else {
-        printf("Error! Usage: ./imm -option file\n");
-    }
+void redirectFunction(int numberOfArguments, char functionality[8], char imageRelativePath[50]) {
+  if (numberOfArguments < 3) {
+      printf("Error, No files passed! Usage: ./imm -option file\n");
+  } else if (strcmp(functionality, "-open") == 0) {
+      readImageTextFormat(imageRelativePath);
+  } else if (strcmp(functionality, "-convert") == 0) {
+      printf("Convert an image %s\n", imageRelativePath);
+  } else if (strcmp(functionality, "-segment") == 0) {
+      printf("Segment an image %s\n", imageRelativePath);
+  } else if (strcmp(functionality, "-cc") == 0) {
+      printf("Detect conected components in an image %s\n", imageRelativePath);
+  } else if (strcmp(functionality, "-lab") == 0) {
+      printf("Show the path to be traveled %s\n", imageRelativePath);
+  } else {
+      printf("Error! Usage: ./imm -option file\n");
+  }
 }
 
 int main(int argc, char *argv[]) {
         printSoftwareTitle();
-        redirectFunction(argc, argv);
+        redirectFunction(argc, argv[1], argv[2]);
     return 0;
 }
-
