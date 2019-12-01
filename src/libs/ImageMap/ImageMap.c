@@ -37,7 +37,6 @@ Image *readImageTextFormat(char *pathToImage) {
 
         insertMatriz(image, pixelInt);
         pixelString = strtok(NULL, "	");
-        j++;
       }
     }
   }

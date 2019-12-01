@@ -28,7 +28,7 @@ int insertMatriz(Matriz *matriz, int num) {
     return -1;
 
   int pos = matriz->next;
-  int *pointer = matriz->data+pos;
+  int *pointer = (matriz->data)+pos;
 
   *pointer = num;
   matriz->next++;
@@ -36,21 +36,20 @@ int insertMatriz(Matriz *matriz, int num) {
 }
 
 int printMatriz(Matriz *matriz) {
-  // if (matriz == NULL)
-  //   return -1;
-  //
-  // int i, j;
-  // int pos;
-  // for (i = 0; i < matriz->rows; i++) {
-  //   for (j = 0; j < matriz->columns; j++) {
-  //     pos = j * matriz->rows + i;
-  //     printf("%i\t", matriz->data+pos);
-  //
-  //     if (j == matriz->columns)
-  //       printf("\n");
-  //   }
-  // }
+  if (matriz == NULL)
+    return -1;
 
-  printf("teste");
+  int i, j;
+  int pos;
+  for (i = 0; i < matriz->rows; i++) {
+    for (j = 0; j < matriz->columns; j++) {
+      pos = j * matriz->rows + i;
+      printf("%i\t", *((matriz->data)+pos));
+
+      if (j == matriz->columns)
+        printf("\n");
+    }
+  }
+
   return 0;
 }

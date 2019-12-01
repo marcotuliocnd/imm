@@ -5,10 +5,11 @@
 #include "./libs/ImageMap/ImageMap.h"
 
 void redirectFunction(int numberOfArguments, char functionality[8], char imageRelativePath[50]) {
-  if (numberOfArguments < 3) {
+  if (numberOfArguments < 3 && numberOfArguments >= 2) {
       printf("Error, No files passed! Usage: ./imm -option file\n");
   } else if (strcmp(functionality, "-open") == 0) {
-      readImageTextFormat(imageRelativePath);
+      Image *image = readImageTextFormat(imageRelativePath);
+      printImage(image);
   } else if (strcmp(functionality, "-convert") == 0) {
       printf("Convert an image %s\n", imageRelativePath);
   } else if (strcmp(functionality, "-segment") == 0) {
