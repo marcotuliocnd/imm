@@ -4,6 +4,7 @@
 
 struct Matriz {
   int next;
+  int nextEach;
   int rows;
   int columns;
   int *data;
@@ -15,6 +16,7 @@ Matriz* createMatriz(int rows, int columns) {
   matriz->rows = rows;
   matriz->columns = columns;
   matriz->next = 0;
+  matriz->nextEach = 0;
   return matriz;
 }
 
@@ -35,6 +37,20 @@ int insertMatriz(Matriz *matriz, int num) {
   return 0;
 }
 
+int getColumns(Matriz *matriz) {
+  if (matriz == NULL)
+    return -1;
+
+  return matriz->columns;
+}
+
+int getRows(Matriz *matriz) {
+  if (matriz == NULL)
+    return -1;
+
+  return matriz->rows;
+}
+
 int printMatriz(Matriz *matriz) {
   if (matriz == NULL)
     return -1;
@@ -52,4 +68,46 @@ int printMatriz(Matriz *matriz) {
   }
 
   return 0;
+}
+
+int replaceMatriz(Matriz *matriz, int base) {
+  int *number;
+  int i;
+  int j;
+  int pos;
+  for (i = 0; i < matriz->rows; i++) {
+    for (j = 0; j < matriz->columns; j++) {
+      pos = j * matriz->rows + i;
+      number = matriz->data+pos;
+      if (*number < base)
+        *number = 0;
+      else
+        *number = 1;
+    }
+  }
+
+  return 0;
+}
+
+int *getLine(Matriz *matriz, int line) {
+  int width = getColumns(matriz);
+  int *lineVector = malloc(sizeof(int) * width);
+  int *posLineVector;
+  int pos;
+  for (int j = 0; j < matriz->columns; j++) {
+    pos = j * matriz->rows + line;
+    posLineVector = lineVector + j;
+    posLineVector = matriz->data+pos;
+  }
+
+  return lineVector;
+}
+
+int getEachElementInOrder(Matriz *matriz) {
+  if (matriz == NULL)
+    return -1;
+
+  int pos = matriz->nextEach;
+  matriz->nextEach++;
+  return *(matriz->data+pos);
 }

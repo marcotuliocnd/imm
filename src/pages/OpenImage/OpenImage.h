@@ -1,0 +1,1 @@
+int OpenImage(char *imageRelativePath);
