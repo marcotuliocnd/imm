@@ -11,11 +11,23 @@ void router(int numberOfArgs, char *args[]) {
   char *functionality = args[1];
   char *imageRelativePath = args[2];
 
-  if (strcmp(functionality, "-open") == 0)
+  if (strcmp(functionality, "-open") == 0) {
+    if (numberOfArgs < 2) {
+      printf("Error! Usage:\n");
+      printf("\t-open img.txt\n");
+      exit(1);
+    }
     OpenImage(imageRelativePath);
+  }
 
-  else if (strcmp(functionality, "-convert") == 0)
+  else if (strcmp(functionality, "-convert") == 0) {
+    if (numberOfArgs < 3) {
+      printf("Error! Usage:\n");
+      printf("\t-convert img.txt img.imm\n");
+      exit(1);
+    }
     ConvertImage(imageRelativePath, args[3]);
+  }
 
   else if (strcmp(functionality, "-segment") == 0) {
     if (numberOfArgs < 4) {
@@ -33,7 +45,7 @@ void router(int numberOfArgs, char *args[]) {
       exit(1);
     }
   }
-  //
+
   else if (strcmp(functionality, "-lab") == 0) {
     if (numberOfArgs < 3) {
       printf("Error! Usage:\n");

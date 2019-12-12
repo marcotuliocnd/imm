@@ -68,45 +68,6 @@ Image *readImageBinaryFormat(char *pathToImage) {
   return image;
 }
 
-int convertImageIntoBinary(Image *image, char *savePath) {
-  checkNullPointer(image);
-
-  FILE *filePointerDestine;
-  filePointerDestine = fopen(savePath, "wb");
-  checkNullPointer(filePointerDestine);
-
-  int width = getWidth(image);
-  int height = getHeight(image);
-
-  int i;
-  int j;
-  int element;
-  int pos;
-  fwrite(&width, sizeof(int), 1, filePointerDestine);
-  fwrite(&height, sizeof(int), 1, filePointerDestine);
-  for (i = 0; i < height + 2; i++) {
-    for(j = 0; j < width; j++) {
-      pos = j * height + i;
-      element = getElementInPoint(image, pos);
-      fwrite(&element, sizeof(int), 1, filePointerDestine);
-    }
-  }
-
-  fclose(filePointerDestine);
-  return 0;
-}
-
-int makeTresholding(Image *image, int thr, char *destinePath, int fileFormat) {
-  checkNullPointer(image);
-  replaceMatriz(image, thr);
-
-  if (fileFormat == 0)
-    convertImageIntoText(image, destinePath);
-  else
-    convertImageIntoBinary(image, destinePath);
-  return 0;
-}
-
 int convertImageIntoText(Image *image, char *destinePath) {
   checkNullPointer(image);
 
@@ -138,6 +99,34 @@ int convertImageIntoText(Image *image, char *destinePath) {
   return 0;
 }
 
+int convertImageIntoBinary(Image *image, char *savePath) {
+  checkNullPointer(image);
+
+  FILE *filePointerDestine;
+  filePointerDestine = fopen(savePath, "wb");
+  checkNullPointer(filePointerDestine);
+
+  int width = getWidth(image);
+  int height = getHeight(image);
+
+  int i;
+  int j;
+  int element;
+  int pos;
+  fwrite(&width, sizeof(int), 1, filePointerDestine);
+  fwrite(&height, sizeof(int), 1, filePointerDestine);
+  for (i = 0; i < height + 2; i++) {
+    for(j = 0; j < width; j++) {
+      pos = j * height + i;
+      element = getElementInPoint(image, pos);
+      fwrite(&element, sizeof(int), 1, filePointerDestine);
+    }
+  }
+
+  fclose(filePointerDestine);
+  return 0;
+}
+
 int getWidth(Image *image) {
   checkNullPointer(image);
 
@@ -150,16 +139,9 @@ int getHeight(Image *image) {
   return  getRows(image);
 }
 
-void freeImage(Image *image) {
-  checkNullPointer(image);
-  freeMatriz(image);
-}
-
-int printImage(Image *image) {
-  checkNullPointer(image);
-  printMatriz(image);
-  printf("\n");
-  return 0;
+int getPixelInPoint(Image *image, int i, int j) {
+  int pos = j * getHeight(image) * i;
+  return getElementInPoint(image, pos);
 }
 
 int printPixel(Image *image, int pos) {
@@ -169,7 +151,25 @@ int printPixel(Image *image, int pos) {
   return 0;
 }
 
-int getPixelInPoint(Image *image, int i, int j) {
-  int pos = j * getHeight(image) * i;
-  return getElementInPoint(image, pos);
+int printImage(Image *image) {
+  checkNullPointer(image);
+  printMatriz(image);
+  printf("\n");
+  return 0;
+}
+
+int makeTresholding(Image *image, int thr, char *destinePath, int fileFormat) {
+  checkNullPointer(image);
+  replaceMatriz(image, thr);
+
+  if (fileFormat == 0)
+    convertImageIntoText(image, destinePath);
+  else
+    convertImageIntoBinary(image, destinePath);
+  return 0;
+}
+
+void freeImage(Image *image) {
+  checkNullPointer(image);
+  freeMatriz(image);
 }
