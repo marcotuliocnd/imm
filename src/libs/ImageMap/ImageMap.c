@@ -1,7 +1,8 @@
-#include "ImageMap.h"
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+
+#include "ImageMap.h"
 
 void checkNullPointer(void *pointer) {
   if (pointer == NULL){
@@ -10,7 +11,7 @@ void checkNullPointer(void *pointer) {
   }
 }
 
-Image *readImageTextFormat(char *pathToImage, int type) {
+Image *readImageTextFormat(char *pathToImage) {
   FILE *filePointer;
   filePointer = fopen(pathToImage, "r");
   checkNullPointer(filePointer);
@@ -21,107 +22,116 @@ Image *readImageTextFormat(char *pathToImage, int type) {
 
   Image *image = createMatriz(height, width);
 
-  if (type == 1) {
-    int i = 0;
-    char linha[width*height];
-    char *pixelString;
-    int pixelInt;
-    for (i = 0; i < height + 2; i++) {
-      if (i > 1) {
-        fgets(linha, sizeof(linha), filePointer);
-        pixelString = strtok(linha,"  ");
-        while (pixelString != NULL) {
-          if (pixelString[strlen(pixelString)-1] == '\n')
-            pixelString[strlen(pixelString)-1] = 0;
-
-          pixelInt = atoi(pixelString);
-
-          insertMatriz(image, pixelInt);
-          pixelString = strtok(NULL, "	");
-        }
-      }
+  int i = 0;
+  int j = 0;
+  char linha[width*height];
+  char *pixelString;
+  int pixelInt;
+  int pos;
+  for (i = 0; i < height; i++) {
+    fgets(linha, sizeof(linha), filePointer);
+    pixelString = strtok(linha,"\t");
+    for (j = 0; j < width; j++) {
+      pixelInt = atoi(pixelString);
+      pos = j * height + i;
+      insertMatriz(image, pixelInt, pos);
+      pixelString = strtok(NULL, "\t");
     }
   }
-
-  if (type == 2) {
-    int i = 0;
-    char linha[width*height];
-    char *pixelString;
-    int pixelInt;
-    for (i = 0; i < height + 2; i++) {
-      if (i > 1) {
-        fread(linha, sizeof(linha), 2,filePointer);
-        pixelString = strtok(linha,"	");
-        while (pixelString != NULL) {
-          if (pixelString[strlen(pixelString)-1] == '\n')
-            pixelString[strlen(pixelString)-1] = 0;
-
-          pixelInt = atoi(pixelString);
-
-          insertMatriz(image, pixelInt);
-          pixelString = strtok(NULL, "	");
-        }
-      }
-    }
-  }
-
-
   fclose(filePointer);
   return image;
 }
 
-int convertImageIntoBinary(char *sourcePath, char *savePath) {
-  strcat(savePath, ".imm");
+Image *readImageBinaryFormat(char *pathToImage) {
+  FILE *filePointer;
+  filePointer = fopen(pathToImage, "rb");
+  checkNullPointer(filePointer);
 
-  FILE *filePointerSource;
-  filePointerSource = fopen(sourcePath, "r");
-  checkNullPointer(filePointerSource);
+  int width;
+  int height;
+  int pixelCanvas;
+  fread(&width, sizeof(int), 1, filePointer);
+  fread(&height, sizeof(int), 1, filePointer);
+  Image *image = createMatriz(height, width);
+
+  int i = 0;
+  int j = 0;
+  int pos;
+  for (i = 0; i < height + 2; i++) {
+    for(j = 0; j < width; j++) {
+      fread(&pixelCanvas, sizeof(int), 1, filePointer);
+      pos = j * height + i;
+      insertMatriz(image, pixelCanvas, pos);
+    }
+  }
+  fclose(filePointer);
+  return image;
+}
+
+int convertImageIntoBinary(Image *image, char *savePath) {
+  checkNullPointer(image);
 
   FILE *filePointerDestine;
   filePointerDestine = fopen(savePath, "wb");
   checkNullPointer(filePointerDestine);
 
-  int imageText;
-  int num;
-  while (!feof(filePointerSource)) {
-         fread(&imageText, sizeof(int), 1, filePointerSource);
-         num = imageText;
-         fwrite(&num, sizeof(int), 4, filePointerDestine);
-  }
-
-  fclose(filePointerSource);
-  fclose(filePointerDestine);
-
-  return 0;
-}
-
-int makeTresholding(Image *image, int thr, char *destinePath) {
-  checkNullPointer(image);
-  replaceMatriz(image, thr);
-
-
-  saveImage(image, destinePath);
-  return 0;
-}
-
-int saveImage(Image *image, char *destinePath) {
-  checkNullPointer(image);
-
-  FILE *filePointerDestine;
-  filePointerDestine = fopen(destinePath, "w");
-  checkNullPointer(filePointerDestine);
   int width = getWidth(image);
   int height = getHeight(image);
 
-  fprintf(filePointerDestine, "%i\n%i\n", width, height);
-  int endOfLine = 1;
-  for (int counter = 0; counter < width*height; counter++) {
-    fprintf(filePointerDestine, "%i	", getEachElementInOrder(image));
-    if (endOfLine == width) {
-      fprintf(filePointerDestine, "\n");
-      endOfLine = 0;
+  int i;
+  int j;
+  int element;
+  int pos;
+  fwrite(&width, sizeof(int), 1, filePointerDestine);
+  fwrite(&height, sizeof(int), 1, filePointerDestine);
+  for (i = 0; i < height + 2; i++) {
+    for(j = 0; j < width; j++) {
+      pos = j * height + i;
+      element = getElementInPoint(image, pos);
+      fwrite(&element, sizeof(int), 1, filePointerDestine);
     }
-    endOfLine++;
+  }
+
+  fclose(filePointerDestine);
+  return 0;
+}
+
+int makeTresholding(Image *image, int thr, char *destinePath, int fileFormat) {
+  checkNullPointer(image);
+  replaceMatriz(image, thr);
+
+  if (fileFormat == 0)
+    convertImageIntoText(image, destinePath);
+  else
+    convertImageIntoBinary(image, destinePath);
+  return 0;
+}
+
+int convertImageIntoText(Image *image, char *destinePath) {
+  checkNullPointer(image);
+
+  FILE *filePointerDestine;
+  filePointerDestine = fopen(destinePath, "wb");
+  checkNullPointer(filePointerDestine);
+
+  int width = getWidth(image);
+  int height = getHeight(image);
+
+  int i;
+  int j;
+  int element;
+  int pos;
+  fprintf(filePointerDestine, "%i\n%i\n", width, height);
+  for (i = 0; i < height + 2; i++) {
+    for (j = 0; j < width; j++) {
+      pos = j * height + i;
+      element = getElementInPoint(image, pos);
+      fprintf(filePointerDestine, "%i", element);
+      if(j+1 == width)
+        fprintf(filePointerDestine, "\n");
+      else
+        fprintf(filePointerDestine, "\t");
+    }
   }
 
   fclose(filePointerDestine);
@@ -148,5 +158,18 @@ void freeImage(Image *image) {
 int printImage(Image *image) {
   checkNullPointer(image);
   printMatriz(image);
+  printf("\n");
   return 0;
+}
+
+int printPixel(Image *image, int pos) {
+  checkNullPointer(image);
+  printOne(image, pos);
+
+  return 0;
+}
+
+int getPixelInPoint(Image *image, int i, int j) {
+  int pos = j * getHeight(image) * i;
+  return getElementInPoint(image, pos);
 }

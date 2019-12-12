@@ -4,6 +4,8 @@
 
 struct Matriz {
   int next;
+  int i;
+  int j;
   int nextEach;
   int rows;
   int columns;
@@ -16,6 +18,8 @@ Matriz* createMatriz(int rows, int columns) {
   matriz->rows = rows;
   matriz->columns = columns;
   matriz->next = 0;
+  matriz->i = 0;
+  matriz->j = 0;
   matriz->nextEach = 0;
   return matriz;
 }
@@ -25,16 +29,22 @@ void freeMatriz(Matriz *matriz) {
   free(matriz);
 }
 
-int insertMatriz(Matriz *matriz, int num) {
+int insertMatriz(Matriz *matriz, int num, int pos) {
   if (matriz == NULL)
     return -1;
 
-  int pos = matriz->next;
   int *pointer = (matriz->data)+pos;
 
   *pointer = num;
-  matriz->next++;
+
   return 0;
+}
+
+int *returnArray(Matriz *matriz) {
+  if (matriz == NULL)
+    return NULL;
+
+  return matriz->data;
 }
 
 int getColumns(Matriz *matriz) {
@@ -57,16 +67,27 @@ int printMatriz(Matriz *matriz) {
 
   int i, j;
   int pos;
+  int *pointer;
   for (i = 0; i < matriz->rows; i++) {
     for (j = 0; j < matriz->columns; j++) {
       pos = j * matriz->rows + i;
-      printf("%i\t", *((matriz->data)+pos));
+      pointer = (matriz->data)+pos;
+      printf("%i\t", *pointer);
 
       if (j == matriz->columns)
         printf("\n");
     }
   }
 
+  return 0;
+}
+
+int printOne(Matriz *matriz, int pos) {
+  if (matriz == NULL)
+    return -1;
+
+  int *pointer = matriz->data+pos;
+  printf("%i\n", *pointer);
   return 0;
 }
 
@@ -108,6 +129,14 @@ int getEachElementInOrder(Matriz *matriz) {
     return -1;
 
   int pos = matriz->nextEach;
-  matriz->nextEach++;
+  if (matriz->nextEach < matriz->rows*matriz->columns)
+    matriz->nextEach++;
+  if (matriz->nextEach == matriz->rows*matriz->columns)
+    matriz->nextEach = 0;
+  return *(matriz->data+pos);
+}
+
+
+int getElementInPoint(Matriz *matriz, int pos) {
   return *(matriz->data+pos);
 }

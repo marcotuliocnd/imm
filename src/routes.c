@@ -26,8 +26,20 @@ void router(int numberOfArgs, char *args[]) {
     SegmentImage(args[2], args[3], args[4]);
   }
 
-  // else if (strcmp(functionality, "-cc") == 0)
+  else if (strcmp(functionality, "-cc") == 0) {
+    if (numberOfArgs < 3) {
+      printf("Error! Usage:\n");
+      printf("\t-cc img.txt img.imm\n");
+      exit(1);
+    }
+  }
   //
-  // else if (strcmp(functionality, "-lab") == 0)
+  else if (strcmp(functionality, "-lab") == 0) {
+    if (numberOfArgs < 3) {
+      printf("Error! Usage:\n");
+      printf("\t-lab img.txt img.imm\n");
+      exit(1);
+    }
+  }
 
 }

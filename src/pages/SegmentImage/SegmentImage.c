@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "../../libs/ImageMap/ImageMap.h"
+#include "../../libs/misc/Miscelaneous.h"
 
 int SegmentImage(char *thr, char *sourcePath, char *destinePath) {
   int thresholdLimit = atoi(thr);
@@ -13,8 +14,26 @@ int SegmentImage(char *thr, char *sourcePath, char *destinePath) {
     exit(1);
   }
 
-  Image *sourceImage = readImageTextFormat(sourcePath, 1);
-  makeTresholding(sourceImage, thresholdLimit, destinePath);
+  Image *image;
+  int checkFileFormatResult = checkFileFormat(sourcePath);
+  switch(checkFileFormatResult) {
+    case 0:
+      image = readImageTextFormat(sourcePath);
+    break;
 
-  printf("Segment was successfuly done\n");
+    case 1:
+      image = readImageBinaryFormat(sourcePath);
+    break;
+
+    case -1:
+      printf("\nError:\n");
+      printf("The image provided has an unsupported format\n");
+      exit(1);
+    break;
+  }
+
+  addFormat(destinePath, checkFileFormatResult);
+  makeTresholding(image, thresholdLimit, destinePath, checkFileFormatResult);
+
+  printf("Segment was successfuly done in %s\n", checkFileFormatResult, destinePath);
 }

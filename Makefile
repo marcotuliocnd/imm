@@ -15,6 +15,9 @@ Matriz.o: $(LIBS)/Matriz/Matriz.c
 ImageMap.o: $(LIBS)/ImageMap/ImageMap.c
 	gcc -c $(LIBS)/ImageMap/ImageMap.c $(BIN)/Matriz.o -o $(BIN)/ImageMap.o
 
+Stack.o: $(LIBS)/Stack/Stack.c
+	gcc -c $(LIBS)/Stack/Stack.c $(BIN)/Matriz.o $(BIN)/ImageMap.o -o $(BIN)/Stack.o
+
 Miscelaneous.o: $(LIBS)/misc/Miscelaneous.c
 	gcc -c $(LIBS)/misc/Miscelaneous.c -o $(BIN)/Miscelaneous.o
 
@@ -27,10 +30,11 @@ OpenImage.o: $(PAGES)/OpenImage/OpenImage.c
 ConvertImage.o: $(PAGES)/ConvertImage/ConvertImage.c
 	gcc -c $(PAGES)/ConvertImage/ConvertImage.c -o $(BIN)/ConvertImage.o
 
+
 SegmentImage.o: $(PAGES)/SegmentImage/SegmentImage.c
 	gcc -c $(PAGES)/SegmentImage/SegmentImage.c -o $(BIN)/SegmentImage.o
 
-libbed: Matriz.o ImageMap.o Miscelaneous.o OpenImage.o  ConvertImage.o SegmentImage.o routes.o
+libbed: Matriz.o ImageMap.o Stack.o Miscelaneous.o OpenImage.o ConvertImage.o SegmentImage.o routes.o
 
 run:
 	$(DIST)/imm
