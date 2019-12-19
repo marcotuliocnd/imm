@@ -2,7 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "ImageMap.h"
+#include "./ImageMap.h"
+#include "../misc/Miscelaneous.h"
+#include "../Stack/Stack.h"
+#include "../DinamicStack/DinamicStack.h"
 
 void checkNullPointer(void *pointer) {
   if (pointer == NULL){
@@ -158,6 +161,76 @@ int printImage(Image *image) {
   return 0;
 }
 
+int cc(Image *image, char* destinefile) {
+  int label = 2;
+  int aux = 0;
+  int *m, *origem;
+  int nlin, ncol, x[4] = {-1,0,0,1},y[4] = {0,-1,1,0};
+  Stack* pilha;
+
+  nlin = getHeight(image);
+  ncol = getWidth(image);
+
+  origem = returnArray(image);
+  m = malloc(nlin*ncol*sizeof(int));
+
+  for (int i=0; i<ncol*nlin; i++)
+      m[i] = 0;
+
+  pilha = stackCreate();
+  Pixel p, p_atual;
+
+  for(int l=0;l<ncol;l++){
+      for(int k=0;k<nlin;k++){
+          p.x=l;
+          p.y=k;
+          if (origem[p.y*ncol+p.x]==1 && m[p.y*ncol+p.x]==0)
+          {
+              m[p.y*ncol+p.x]=label;
+              aux=stackPush(pilha, p);
+              while(stackSize(pilha)!=0)
+              {
+                  aux = stackTop(pilha, &p_atual);
+                  aux = stackPop(pilha);
+
+                  for(int i=0;i<4;i++)
+                  {
+                      p.x = p_atual.x+x[i];
+                      p.y = p_atual.y+y[i];
+                      if (origem[p.y*ncol+p.x]==1 && m[p.y*ncol+p.x]==0)
+                      {
+                          m[p.y*ncol+p.x]=label;
+                          aux=stackPush(pilha, p);
+                      }
+                  }
+              }
+              label++;
+          }
+      }
+  }
+
+  for (int i=0; i<ncol*nlin; i++)
+      insertMatriz(image,m[i],i);
+
+
+  int fileFormat = checkFileFormat(destinefile);
+  switch (fileFormat) {
+    case 0:
+      convertImageIntoText(image, destinefile);
+    break;
+
+    case 1:
+      convertImageIntoBinary(image, destinefile);
+    break;
+
+    default:
+      addFormat(destinefile, 1);
+      convertImageIntoBinary(image, destinefile);
+  }
+
+  return 1;
+}
+
 int makeTresholding(Image *image, int thr, char *destinePath, int fileFormat) {
   checkNullPointer(image);
   replaceMatriz(image, thr);
@@ -172,4 +245,69 @@ int makeTresholding(Image *image, int thr, char *destinePath, int fileFormat) {
 void freeImage(Image *image) {
   checkNullPointer(image);
   freeMatriz(image);
+}
+
+int maze(Image *image, char* filenameimm) {
+    int ans = 0;
+    int *mat;
+
+    int nlin = getHeight(image);
+    int ncol = getWidth(image);
+
+    struct ponto p;
+    struct ponto cord;
+    cord.x=0;
+    cord.y=1;
+    while(mat[cord.y*ncol] != 1)
+        cord.y++;
+    mat[cord.y*ncol+cord.x]=2;
+    Stack* st;
+    st=stack_create();
+    ans=stack_push(st,cord);
+    cord.x=1;
+    ans=stack_push(st,cord);
+    mat[cord.y*ncol+cord.x]=2;
+    while(cord.x!=ncol-1){
+        ans= stack_top(st,&p);
+        cord.x = p.x;
+        cord.y = p.y;
+        if(mat[(cord.y-1)*ncol+cord.x]==1){
+            cord.y--;
+            ans=stack_push(st,cord);
+            mat[cord.y*ncol+cord.x] = 2;
+        }
+        else if(mat[(cord.y+1)*ncol+cord.x]==1){
+            cord.y++;
+            ans=stack_push(st,cord);
+            mat[cord.y*ncol+cord.x] = 2;
+        }
+        else if(mat[cord.y*ncol+cord.x-1]==1){
+            cord.x--;
+            ans=stack_push(st,cord);
+            mat[cord.y*ncol+cord.x] = 2;
+        }
+        else if(mat[cord.y*ncol+cord.x+1]==1){
+            cord.x++;
+            ans=stack_push(st,cord);
+            mat[cord.y*ncol+cord.x] = 2;
+            }
+        else{
+            ans = stack_top(st,&p);
+            cord.x = p.x;
+            cord.y = p.y;
+            mat[cord.y*ncol+cord.x] = 3;
+            ans=stack_pop(st);
+        }
+    }
+
+    while(stack_size(st) != 0){
+        ans = stack_top(st,&p);
+        printf("%d %d\n",p.y, p.x);
+        ans=stack_pop(st);
+    }
+
+    ans = stack_free(st);
+
+
+    return SUCCESS;
 }

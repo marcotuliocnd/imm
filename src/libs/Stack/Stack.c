@@ -1,11 +1,5 @@
-#include "./Stack.h"
+#include "Stack.h"
 #include "../ImageMap/ImageMap.h"
-
-struct pixel {
-    int x;
-    int y;
-    int direction; //0 - left 1 - top 2 - right 4 - bottom
-};
 
 struct node {
     Pixel pixel;
@@ -60,4 +54,11 @@ Pixel* stackPop(Stack* p){
 
 int stackSize(Stack* p){
     return p->quantity;
+}
+
+
+int stackTop(Stack *st, Pixel *pt){
+    Node *p=st->top;
+    *pt=p->pixel;
+    return 1;
 }

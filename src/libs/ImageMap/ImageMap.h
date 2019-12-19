@@ -18,5 +18,7 @@ int printPixel(Image *image, int pos);
 int printImage(Image *image);
 
 int makeTresholding(Image *image, int thr, char *destinePath, int fileFormat);
+int cc(Image *image, char* destinefile);
+int maze(Image *image, char* filenameimm);
 
 void freeImage(Image *image);
